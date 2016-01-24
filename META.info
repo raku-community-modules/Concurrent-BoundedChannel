@@ -1,0 +1,13 @@
+{
+    "perl" : "6.*",
+    "name" : "Concurrent::BoundedChannel",
+    "version" : "0.1.0",
+    "description" : "Subclass of Channel with limited number of elements",
+    "depends" : [ ],
+    "provides" :  {
+        "Concurrent::BoundedChannel" : "lib/Concurrent/BoundedChannel.pm6"
+    },
+    "repo-type" : "git",
+    "source-url" : "git://github.com/gotoexit/p6-concurrent-iterator.git",
+    "authors" : [ "github:gotoexit" ]
+}

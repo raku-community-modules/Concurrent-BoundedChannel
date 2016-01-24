@@ -1,7 +1,7 @@
 # Concurrent::BoundedChannel
 
-A standard Perl 6 `Iterator` should only be consumed from one thread at a time.
-`Concurrent::Iterator` allows any Iterable to be iterated concurrently.
+The normal perl6 Channel is an unbounded queue.  This subclass offers
+an alternative with size limits.
 
 ## Synopsis
 

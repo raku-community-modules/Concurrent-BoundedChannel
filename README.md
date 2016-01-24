@@ -8,7 +8,7 @@ an alternative with size limits.
     use Concurrent::BoundedChannel;
 
     # Construct a BoundedChannel with 20 entries
-    my $bc = BoundedChannel.new(limit=>5);
+    my $bc = BoundedChannel.new(limit=>20);
 
     $bc.send('x');          # will block if $bc is full
     my $val = $bc.receive;  # returns 'x'

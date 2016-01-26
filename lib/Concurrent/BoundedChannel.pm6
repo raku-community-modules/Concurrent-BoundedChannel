@@ -24,6 +24,7 @@ class BoundedChannel is Channel is export
   has $!receivewait;
   has $!receivewaiters;
   has $!count;
+  has $!closed;
 
   submethod BUILD (Int :$limit is required)
   {
@@ -35,6 +36,7 @@ class BoundedChannel is Channel is export
     $!receivewait=$!bclock.condition;
     $!receivewaiters=0;
     $!count=0;
+    $!closed=False;
   }
 
   method send(Channel:D: \item)
@@ -42,7 +44,8 @@ class BoundedChannel is Channel is export
     my $z;
     my $p;
     $!bclock.lock;
-    while $!count >= $!limit
+
+    while $!count >= $!limit && ! $!closed
     {
       last if $!limit==0 && $!receivewaiters>0;
       $!sendwaiters++;
@@ -53,7 +56,15 @@ class BoundedChannel is Channel is export
     $!receivewait.signal;
 
     $!count++;
-    $z:=callsame;
+    try
+    {
+      $z:=callsame;
+      CATCH
+      {
+        $!bclock.unlock;
+        .throw;
+      }
+    }
     $!bclock.unlock;
     return $z;
   }
@@ -82,7 +93,7 @@ class BoundedChannel is Channel is export
 
     $!sendwait.signal;
 
-    while $!count == 0
+    while $!count == 0 && ! $!closed
     {
       $!receivewaiters++;
       $!receivewait.wait;
@@ -105,10 +116,29 @@ class BoundedChannel is Channel is export
       $!receivewait.wait;
       $!receivewaiters--;
     }
-    $x:=callsame;
+    try
+    {
+      $x:=callsame;
+      CATCH
+      {
+        $!bclock.unlock;
+        .throw;
+      }
+    }
     $!count-- with $x;
 
 
+    $!bclock.unlock;
+    return $x;
+  }
+
+  method close(Channel:D:)
+  {
+    $!bclock.lock;
+    $!closed=True;
+    $!receivewait.signal_all;
+    $!sendwait.signal_all;
+    my $x:=callsame;
     $!bclock.unlock;
     return $x;
   }

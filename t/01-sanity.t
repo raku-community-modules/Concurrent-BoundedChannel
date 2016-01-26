@@ -4,7 +4,7 @@ use v6;
 use Concurrent::BoundedChannel;
 use Test;
 
-plan 32;
+plan 36;
 
 my $bc=BoundedChannel.new(limit=>5);
 $bc.send(1);
@@ -110,3 +110,22 @@ is(@pp.map({$_.result}).sort,(0,1,2,3,4,5,6,7,8,9));
   for ^10 {@z.append($bc.receive)};
   is(@z.sort,(0,1,2,3,4,5,6,7,8,9));
 }
+
+$bc=BoundedChannel.new(limit=>5);
+$bc.send(1);
+$bc.send(2);
+$bc.send(3);
+$bc.close;
+throws-like({$bc.send(4)},X::Channel::SendOnClosed);
+$bc.receive;
+$bc.receive;
+$bc.receive;
+throws-like({$bc.receive},X::Channel::ReceiveOnClosed);
+
+$bc=BoundedChannel.new(limit=>5);
+for ^5 {$bc.send($_)};
+$p = start {$bc.send(6)};
+await Promise.in(1);
+$bc.close;
+throws-like({$bc.send(5)},X::Channel::SendOnClosed);
+throws-like({$p.result},X::Channel::SendOnClosed);

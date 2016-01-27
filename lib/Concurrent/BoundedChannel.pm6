@@ -99,7 +99,15 @@ class BoundedChannel is Channel is export
       $!receivewait.wait;
       $!receivewaiters--;
     }
-    $x:=callsame;
+    try
+    {
+      $x:=callsame;
+      CATCH
+      {
+        $!bclock.unlock;
+        .throw;
+      }
+    }
     $!count--;
     $!bclock.unlock;
     return $x;
@@ -133,6 +141,17 @@ class BoundedChannel is Channel is export
   }
 
   method close(Channel:D:)
+  {
+    $!bclock.lock;
+    $!closed=True;
+    $!receivewait.signal_all;
+    $!sendwait.signal_all;
+    my $x:=callsame;
+    $!bclock.unlock;
+    return $x;
+  }
+
+  method fail(Channel:D: $error)
   {
     $!bclock.lock;
     $!closed=True;

@@ -4,7 +4,15 @@ use v6;
 use Concurrent::BoundedChannel;
 use Test;
 
-plan 36;
+class X::TestException is Exception
+{
+  method message
+  {
+    "This is a test exception.";
+  }
+}
+
+plan 39;
 
 my $bc=BoundedChannel.new(limit=>5);
 $bc.send(1);
@@ -129,3 +137,18 @@ await Promise.in(1);
 $bc.close;
 throws-like({$bc.send(5)},X::Channel::SendOnClosed);
 throws-like({$p.result},X::Channel::SendOnClosed);
+
+$bc=BoundedChannel.new(limit=>5);
+for ^5 {$bc.send($_)};
+$bc.fail(X::TestException.new);
+for ^5 {$bc.receive};
+throws-like({$bc.receive},X::TestException);
+
+$bc=BoundedChannel.new(limit=>5);
+$bc.send(1);
+$bc.send(2);
+$bc.send(3);
+$bc.fail(X::TestException.new);
+throws-like({$bc.send(4)},X::Channel::SendOnClosed);
+for ^3 {$bc.receive};
+throws-like({$bc.receive},X::TestException);

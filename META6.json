@@ -9,6 +9,6 @@
         "Concurrent::BoundedChannel" : "lib/Concurrent/BoundedChannel.pm6"
     },
     "repo-type" : "git",
-    "source-url" : "git://github.com/gotoexit/p6-concurrent-iterator.git",
+    "source-url" : "https://github.com/gotoexit/Concurrent-BoundedChannel.git",
     "authors" : [ "github:gotoexit" ]
 }

@@ -1,4 +1,6 @@
 Revision history for Concurrent::BoundedChannel
 
 {{$NEXT}}
+
+0.4.1  2024-12-13T18:15:22+01:00
     - Initial version as a Raku Community module
